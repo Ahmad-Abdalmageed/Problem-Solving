@@ -11,56 +11,33 @@
 class Solution {
 public:
     ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
-        ListNode* head = new ListNode();
-        ListNode* curPtr= head;
-        while(list1 != nullptr && list2 != nullptr){
-            
-            int curVal;
-            if(list1->val <=list2->val){
-                curVal=list1->val;
-                list1=list1->next;
+        ListNode* CUR_HEAD1 = list1;
+        ListNode* CUR_HEAD2 = list2;
+        ListNode* NEW_LIST = new ListNode(0);
+        ListNode* TRAV_LIST = NEW_LIST;
 
-            }else {
-                curVal=list2->val;
-                list2=list2->next;
-            }
-            curPtr->next= new ListNode(curVal);
-            curPtr=curPtr->next;
-
-
-      }
-        if(list1 == nullptr){
-
-            while(list2 != nullptr){
-
-                curPtr->next=new ListNode(list2->val);
-
-                list2=list2->next;
-
-                
-
-                curPtr=curPtr->next;
+        while(CUR_HEAD1!=nullptr && CUR_HEAD2 != nullptr){
+            if(CUR_HEAD1->val < CUR_HEAD2->val){
+                TRAV_LIST->next = new ListNode(CUR_HEAD1->val);
+                CUR_HEAD1 = CUR_HEAD1->next;
+            } else {
+                TRAV_LIST->next = new ListNode(CUR_HEAD2->val);
+                CUR_HEAD2 = CUR_HEAD2->next;
 
             }
-
+            TRAV_LIST = TRAV_LIST->next;
         }
-        if(list2 == nullptr){
 
-            while(list1 != nullptr){
-
-                curPtr->next=new ListNode(list1->val);
-
-                list1=list1->next;
-
-                
-
-                curPtr=curPtr->next;
-
-            }
-
+        while(CUR_HEAD1!=nullptr){
+            TRAV_LIST->next = new ListNode(CUR_HEAD1->val);
+            CUR_HEAD1 = CUR_HEAD1->next;
+            TRAV_LIST=TRAV_LIST->next;
         }
-        return head->next;
-
-        
+        while(CUR_HEAD2 != nullptr){
+            TRAV_LIST->next = new ListNode(CUR_HEAD2->val);        
+            CUR_HEAD2 = CUR_HEAD2->next;
+            TRAV_LIST=TRAV_LIST->next;        
+        }
+        return NEW_LIST->next;   
     }
 };
