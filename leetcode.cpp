@@ -5,12 +5,14 @@
  */
 
 #include <iostream>
+#include <stack>
 #include <vector>
 #include <algorithm>
 #include <map>
 #include <cmath>
 #include <limits>
 #include <string.h>
+#include <bitset>
 using namespace std;
 
 // Definition for singly-linked list by LEET CODE.
@@ -44,23 +46,766 @@ int threeSumClosest(vector<int>& nums, int target);
 int majorityElement(vector<int>& nums);
 vector<string> letterCombinations(string digits);
 int compareVersion(string version1, string version2);
+vector<int> countBits(int n);
+bool isSubsequence(string s, string t);
+int numberOfArithmeticSlices(vector<int>& nums);
+bool isValid(string s);
+double champagneTower(int poured, int query_row, int query_glass);
+vector<string> generateParenthesis(int n);
+int deleteAndEarn(vector<int>& nums);
+ListNode* mergeKLists(vector<ListNode*>& lists);
+ListNode* mergeLists(ListNode* head1, ListNode* head2);
+ListNode* swapPairs(ListNode* head);
+int countOrders(int n);
+vector<int> lps(string needle);
+bool validateStackSequences(vector<int>& pushed, vector<int>& popped) ;
+vector<int> sortedSquares(vector<int>& nums);
+void rotate(vector<int>& nums, int k) ;
+ListNode* rotateRight(ListNode* head, int k);
+void moveZeroes(vector<int>& nums);
+vector<int> twoSum2(vector<int>& numbers, int target);
+void reverseString(vector<char>& s);
+string reverseWords(string s); 
 
 void logIntArr(vector<int>);
 void logString(string s );
+void logMap(map<int, int> m);
 int getMax(vector<int> nums, int part);
 int getMin(vector<int> nums, int part); 
 
 
+/*
+ * LEET CODE: Generate Parentheses
+ */
+class GenParen{
+public:
+    vector<string> generateParenthesis(int n){
+        pSize = n;
+        backTrackParens("", 0, 0);
+        return res;
 
+    }
+
+    void backTrackParens(string s, int nClosed, int nOpen){
+        cout << s << endl;
+        // Base Case appen result
+        if(nClosed==nOpen && nOpen==pSize){
+            res.push_back(s);
+            return;
+        }
+
+        // Add an open Parentheses 
+        if(nOpen < pSize){
+            s.push_back('(');
+            backTrackParens(s, nClosed, nOpen+1);
+            s.pop_back();
+        }
+
+        // Closed Parentheses 
+        if(nClosed < nOpen){
+            s.push_back(')');
+            backTrackParens(s, nClosed+1, nOpen);
+            s.pop_back();
+        }
+    }
+
+    GenParen(): pSize(0), res({}){
+
+    }
+
+private:
+    int pSize;
+    vector<string> res;
+};
+
+class DeleteEarn{
+public:
+    int deleteAndEarn(vector<int>& nums){
+        inSize = nums.size();
+
+        // Sort 
+        sort(nums.begin(), nums.end());
+        return dp(0, nums);
+    }
+
+    int dp(int idx, vector<int> nums){
+        // BASE CASE
+        if(idx >= inSize) return 0;
+
+        // Memoization
+        if(points.find(idx) != points.end()) return points[idx];
+
+        // take the current point into earning
+        // calculate next idx, or leave
+        int point = nums[idx];
+        int nidx = idx + 1;
+        while(idx<inSize && nums[idx] == nums[nidx]){
+            point = point + nums[nidx];
+            nidx++;
+        }
+        while(nidx < inSize && nums[idx] == nums[nidx]-1){
+            nidx++;
+        }
+        
+
+        // Add max earn into memo
+        points.insert({idx, max(point + dp(nidx, nums), dp(idx+1, nums))});  
+        
+        return points[idx];
+
+    }
+private:
+    int inSize;
+    map<int, int> points;
+};
 /* Main Programm 
  * Usage: Unit Tests and Code Checks 
  */ 
 
 int main(int argc, const char** argv) {
-    string v1 = "1.01";
-    string v2 = "1.001";
-    cout << compareVersion(v1, v2) << endl;
+    cout << (INT32_MAX >> 1) << endl;
 }
+
+/*
+ * LEET CODE: REVERSE WORDS IN STRING
+ * ALGORITHMS I
+ */
+string reverseWords(string s) {
+    int i = 0;
+    int j = 0;
+
+    while(j < s.size()){
+        // Find the end of the first word
+        while(j < s.size() && s[j] != ' ') j++;
+
+        // Swap each word in place
+        reverse(s.begin()+i, s.begin()+j);
+        
+        // Update pointers
+        i = j+1;
+        j = i;
+
+    }
+    return s;
+}
+
+/*
+ * LEET CODE: REVERSE STRINGS
+ * ALGORITHMS I
+ *
+ */
+void reverseString(vector<char>& s) {
+    int left = 0;
+    int rght = s.size() - 1;
+
+    while(left<rght){
+        char temp = s[left];
+        s[left] = s[rght];
+        s[rght] = temp;
+        left++;
+        rght--;
+    }
+}
+
+/* 
+ * LEET CODE : TWO SUM II
+ * 
+ */
+vector<int> twoSum2(vector<int>& numbers, int target){
+    int left = 0;
+    int rght = numbers.size()-1;
+    vector<int> res;
+
+    while(left< rght){
+        if(numbers[left] + numbers[rght] < target) left++;
+        else if(numbers[left] + numbers[rght] > target) rght--;
+        else{
+            res.push_back(left+1);
+            res.push_back(rght+1);
+            break;
+        }
+
+    }
+
+    return res;
+}
+
+/*
+ * LEET CODE: Move Zeros
+ * ALGORITHMS 1
+ */
+void moveZeroes(vector<int>& nums){
+    int i = 0;
+    int j = 0;
+
+    // Loop the array using pointer j to find the zeros
+    while(j < nums.size()){
+        // If current postion holds a non-zero element, swap it with the last position i
+        if(nums[j] != 0){
+            // Swapping
+            int temp = nums[i];
+            nums[i] = nums[j];
+            nums[j] = temp;
+            i++;
+        }
+        j++;
+    }
+}
+
+/*
+ * LEET CODE: Rotate Linked List
+ */
+ListNode* rotateRight(ListNode* head, int k){
+    // count the linked list size to get to the 
+    // desired node at size - k - 1
+    int listSize = 1;
+    ListNode* tail = head;
+
+    while(tail->next!=nullptr){
+        tail = tail->next;
+        listSize++;
+    }
+    
+    // Fix K for cases with k > list size
+    k = k % listSize;
+
+    // for multiples of the same size of the list we do nothing
+    if(k==0) return head;
+    
+    ListNode* new_tail = head;
+    ListNode* new_head = nullptr;
+
+    // Move the new head ptr size - k - 1 steps 
+    for(int steps = 0 ; steps < listSize-k-1; steps++){
+        new_tail = new_tail->next;
+
+    }
+
+    // Make the tail of the list point to the head 
+    tail->next = head;
+    
+    // Make tail points to null and save new head
+    new_head = new_tail->next;
+    new_tail->next = nullptr;
+
+    return new_head;
+}
+
+/* 
+ * LEET CODE: Rotate Array
+ */ 
+void rotate(vector<int>& nums, int k) {
+    // Modify K so that it include cases where the K is 
+    // larger than the entire array size
+    k = k % nums.size();
+
+    // the O(1) Solution
+    // We first reverse the entire array
+    reverse(nums.begin(), nums.end());
+
+    // We then reverse two portions the first portion
+    // is the portion from 0 -> (K-1)
+    reverse(nums.begin(), nums.begin()+ k);
+
+    // Then reverse the rest of the array
+    // k-> end
+    reverse(nums.begin()+k, nums.end());
+
+}
+
+/*
+ * LEET CODE: Squares of Sorted Array 
+ * ALGORITHMS 1
+ */
+vector<int> sortedSquares(vector<int>& nums){
+    vector<int> res;
+    int left = 0;
+    int rght = nums.size()-1;
+
+    while(left < rght){
+        if(abs(nums[rght]) > abs(nums[left])){
+            res.push_back( (nums[rght]) * nums[rght] );
+            rght--;
+        }
+        if(abs(nums[rght]) <= abs(nums[left])){
+            res.push_back( (nums[left]) * nums[left]);
+            left++;
+        }
+    }
+
+    reverse(res.begin(), res.end());
+    return res;
+}
+
+/*
+ * LEET CODE: Check Stack sequences 
+ */
+
+bool validateStackSequences(vector<int>& pushed, vector<int>& popped){
+    stack<int> s;
+    int iPushed = 0;
+    int iPopped = 0;
+
+    // Push and pop the stack according to the sequence
+    while(iPushed < pushed.size()){
+        s.push(pushed[iPushed]);
+
+        // check stack top and first element in popped
+        while(!s.empty() && popped[iPopped] == s.top()){
+            s.pop();
+            iPopped++;
+        }
+        iPushed++;
+    }
+
+    if(s.empty()) return true;
+    else return false;
+}
+
+
+/*
+ * LEET CODE: Divide two integers 
+ */
+
+int divide(int dividend, int divisor) {
+
+    // Edge cases : OVERFLOW in minimum direction
+    if(dividend == INT32_MIN && divisor == -1) return INT32_MAX;
+    if(dividend == INT32_MIN && divisor == 1) return INT32_MIN;
+
+    // Keep both numbers with the same neative sign as to be always in valid 
+    // 32-bit range
+    int up = (dividend > 0) ? -dividend: dividend;
+    int down = (divisor > 0) ? -divisor: divisor;
+
+    // Determine the calculation sign
+    bool negative = (dividend < 0 ) ^ (divisor<0);
+
+    // Find the maximum exponential increase of the accumlator
+    int exp_inc = down;
+    int multiplier = 1;
+
+    int qoutient = 0;
+
+    // Keep doubling the accumlator untill overflow or maximum value
+    while((exp_inc >= (INT32_MIN >> 1)) && (up <= exp_inc + exp_inc) ){
+        // Increase the accum by accum and double the multiplier
+        exp_inc += exp_inc;
+        multiplier <<= 1;
+    }   
+
+    while(up <= down){
+        if(up <= exp_inc){
+            up -= exp_inc;
+            qoutient += multiplier;
+        }
+        exp_inc >>= 1;
+        multiplier >>= 1;
+    }
+    return negative ? -qoutient : qoutient;
+}
+
+/*
+ * LEET CODE: Implement stringstr
+ */
+int strStr(string haystack, string needle){
+    // Empty string case 
+    if(needle == "") return 0;
+    
+    // needle longer than haystack
+    if(needle.size() > haystack.size()) return -1;
+    
+    int i = 0;
+    int j = 0;
+    // Preprocess the needle for lps
+    vector<int> needleLPS = lps(needle);
+
+    while(i < haystack.size()){
+        // while matching substrings continue to advance
+        if(haystack[i] == needle[j]){
+            i++;
+            j++;
+        } else {
+            // found a non matching substrings only advance the haystack pointer
+            if (j == 0) i++;
+
+            // backtrack the needle pointer untill matching substrings
+            else j = needleLPS[j - 1];
+        }
+
+        // at reaching the end of the needle return the substring starting position
+        if(j == needle.size()) return i - needle.size();
+    }
+    
+    // case no matches found
+    return -1;
+}
+
+vector<int> lps(string needle){
+    vector<int> lps(needle.size(), 0);
+    int prvLPS = 0;
+    int curLPS = 1;
+
+    // find the portion of the needle where
+    // the needle suffix is the needle prefix
+    while(curLPS < needle.size()){
+        if(needle[curLPS] == needle[prvLPS]){
+            lps[curLPS] = prvLPS + 1;
+            prvLPS++;
+            curLPS++;
+        } else if (prvLPS == 0){
+            lps[curLPS] = 0;
+            curLPS++;
+        } else {
+            prvLPS = lps[prvLPS - 1];
+        }
+    }
+    return lps;
+}
+
+/* ---- BRUTE FORCE SOLUTION ----
+int strStr(string haystack, string needle) {
+    //  Case Empty string 
+    if(needle=="") return 0;
+
+    // Case needle is longer than haystack 
+    if(needle.size()>haystack.size()) return -1;
+    
+    for(int i=0; i < haystack.size(); i++){
+        if(haystack[i] == needle[0]){
+            int j = 0;
+            // for each character in the string haystack check all needle characters and update needle pointer
+            while( ((i + j) < haystack.size()) && (j < needle.size()) && ( haystack[i + j] == needle[j] )){
+                j++;
+            }
+
+            // if needle pointer reaches the needle end then we found our match
+            if( j == needle.size() ) return i;
+        }
+    }
+    return -1;    
+}
+*/
+/*
+ * LEET CODE:  Count All Valid Pickup and Delivery Options
+ */
+int countOrders(int n){
+    const long long MOD = 1e9+7;
+    long long pickups = 1;
+    long long deliver = 1;
+
+    // Calculate all possible pick up senarios
+    // NPN --- n!
+    for(int i = 2; i <= n; i++){
+        pickups = (pickups * i)%MOD;
+    }
+
+    // Calculate all possible delivery options  
+    // 2n-1 --- 3, 1
+    for(int i = 3; i < (2*n); i=i+2){
+        deliver = (deliver * i)%MOD;
+    }
+    return (deliver * pickups)%MOD;
+}
+
+
+/*
+ * LEET CODE: Swap Nodes in Pairs
+ */
+ListNode* swapPairs(ListNode* head){
+    ListNode* NEW_LIST = new ListNode(0);
+    
+    if(head == nullptr) return head;
+
+    NEW_LIST->next = head;
+    ListNode* PRV_NODE = NEW_LIST;
+    ListNode* CUR_NODE = PRV_NODE->next;
+
+    while(CUR_NODE != nullptr && CUR_NODE->next != nullptr){
+        // Swap both heads with consideration of the rest of the list 
+        ListNode* list = CUR_NODE->next->next;  
+        ListNode* temp = CUR_NODE->next;
+        
+        CUR_NODE->next = list;
+        temp->next = CUR_NODE;
+        PRV_NODE->next = temp;
+
+        // Update Pointers
+        PRV_NODE = CUR_NODE;
+        CUR_NODE = list;
+    }
+    return NEW_LIST->next;
+}
+
+
+/*
+ * LEET CODE : MERGE K SORTED LISTS
+ */
+ListNode* mergeKLists(vector<ListNode*>& lists){
+    if(lists[0] == nullptr || lists.size() == 0) return nullptr;
+    while(lists.size() > 1){
+        vector<ListNode*> NEW_LISTS;
+        for(int i = 0; i < lists.size() ; i=i+2){
+            NEW_LISTS.push_back(mergeLists(lists[i], ((i+1) < lists.size()) ? lists[i+1] : nullptr));
+        }
+        lists.swap(NEW_LISTS);
+    }
+    return lists[0];
+}
+
+// Merge Two Sorted Linked Lists
+ListNode* mergeLists(ListNode* head1, ListNode* head2) {
+    ListNode* CUR_HEAD1 = head1;
+    ListNode* CUR_HEAD2 = head2;
+    ListNode* NEW_LIST = new ListNode(0);
+    ListNode* TRAV_LIST = NEW_LIST;
+    
+    while(CUR_HEAD1!=nullptr && CUR_HEAD2 != nullptr){
+        if(CUR_HEAD1->val < CUR_HEAD2->val){
+            TRAV_LIST->next = new ListNode(CUR_HEAD1->val);
+            CUR_HEAD1 = CUR_HEAD1->next;
+        } else {
+            TRAV_LIST->next = new ListNode(CUR_HEAD2->val);
+            CUR_HEAD2 = CUR_HEAD2->next;
+            
+        }
+        TRAV_LIST = TRAV_LIST->next;
+    }
+    
+    while(CUR_HEAD1!=nullptr){
+        TRAV_LIST->next = new ListNode(CUR_HEAD1->val);
+        CUR_HEAD1 = CUR_HEAD1->next;
+        TRAV_LIST=TRAV_LIST->next;
+    }
+    while(CUR_HEAD2 != nullptr){
+        TRAV_LIST->next = new ListNode(CUR_HEAD2->val);        
+        CUR_HEAD2 = CUR_HEAD2->next;
+        TRAV_LIST=TRAV_LIST->next;        
+    }
+    return NEW_LIST->next;
+}
+
+/*
+ * LEET CODE : DELETE EARN ____ DP Solution
+ */
+int deleteAndEarn(vector<int>& nums){
+    map<int, int> NUM_FREQ;
+    for(auto num: nums){
+        if(NUM_FREQ.find(num)==NUM_FREQ.end()){
+            NUM_FREQ.insert({num, 1});
+        } else {
+            NUM_FREQ[num] += 1;
+        }
+    }
+    logMap(NUM_FREQ);
+    
+    // Sort and remove duplicates 
+    sort(nums.begin(), nums.end());
+    nums.erase(unique(nums.begin(), nums.end()), nums.end());
+
+    int PRE_EARN = 0;
+    int CUR_EARN = 0;
+
+    for(int i = 0; i < nums.size(); i++){
+        int POINTS = nums[i] * NUM_FREQ[nums[i]];
+
+        if(i > 0 && (nums[i] == nums[i-1] + 1) ){
+            int temp = CUR_EARN;
+            CUR_EARN = max(PRE_EARN + POINTS, CUR_EARN);
+            PRE_EARN = temp;
+        } else {
+            int temp = CUR_EARN;
+            CUR_EARN = CUR_EARN + POINTS;
+            PRE_EARN = temp;
+        }
+    }
+    return CUR_EARN;
+}
+/*
+ * LEET CODE : Champagne Tower
+ */ 
+
+double champagneTower(int poured, int query_row, int query_glass){
+    // Get the first rows number of glasses 
+    vector<double> glasses = {(double)poured};
+
+    for(int row =0; row <= query_row; row++){
+        vector<double> NEXT_ROW(glasses.size()+1.0, 0.0);
+
+        for(int glass = 0; glass < glasses.size(); glass++){
+
+            double pour = (glasses[glass] - 1.0)/2.0;
+
+            if(pour > 0.0){
+                NEXT_ROW[glass] += pour;
+                NEXT_ROW[glass+1] += pour;
+            }
+        }
+        glasses.swap(NEXT_ROW);
+    }
+    return min(1.0, glasses[query_glass]);
+}
+/*
+ * LEET CODE : Is Valid Parentheses
+ */ 
+
+// bool isValid(string s){
+//     // Loop each element in string 
+//     // if oppenning Parentheses add to stack
+//     // if clossing Parentheses remove from stack
+//     // return true only if VALID is equal to zero
+//     std::stack<char> ORDER;
+//     std::map<char, char> PARENTHESES {
+//         {'}', '{'},
+//         {')', '('},
+//         {']', '['}
+//     };
+//     for(auto p: s){
+//         // If opeening paren. then add to stack order
+//         if(PARENTHESES.find(p) != PARENTHESES.end()){
+//             if(!ORDER.empty() && ORDER.top() == PARENTHESES[p]){
+//                 ORDER.pop();
+//             } else {
+//                 return false;
+//             }
+//         }
+//         // Clossing Parenthese Check
+//         else{
+//             ORDER.push(p);
+//         }
+//     }
+//     if(ORDER.empty()) return true;
+//     else return false;
+// }
+bool isValid(string s){
+    // Loop each element in string 
+    // if oppenning Parentheses add one to VALIDATION
+    // if clossing Parentheses minus one to VALIDATION
+    // return true only if VALID is equal to zero
+    stack<char> ORDER;
+    for(auto p: s){
+        switch (p)
+        {
+            case '{': ORDER.push('}'); break;
+            case '(': ORDER.push(')'); break;
+            case '[': ORDER.push(']'); break;
+            default:
+                if(ORDER.empty() || p != ORDER.top()) return false;
+                else ORDER.pop();
+        }
+    }
+    return ORDER.empty();
+}
+
+
+/*
+ * LEET CODE: Arithmatci Slices
+ */
+int numberOfArithmeticSlices(vector<int>& nums){
+    int SUBSEQ_COUNT = 0;
+    int CUMULATIVE_COUNT = 0;
+    int DIFF = INT32_MAX;
+
+    if(nums.size() <= 2 ) return 0;
+    for(int i = 1; i < nums.size();i++){
+        int NEW_DIFF = nums[i] - nums[i-1];
+        // Check the last two numbers for the arithmatic sequence
+        if(NEW_DIFF == DIFF){
+            CUMULATIVE_COUNT += 1 ;
+            // Add the cumulative Count to the Result
+            SUBSEQ_COUNT += CUMULATIVE_COUNT;
+
+        } else{
+            // Restart Cumulative counter when finds a different sequence
+            CUMULATIVE_COUNT = 0;
+            DIFF = NEW_DIFF;
+        }
+    }
+
+    return SUBSEQ_COUNT;
+}
+
+
+
+/*
+ * LEET CODE: Is Subsequence
+ */
+
+bool isSubsequence(string s, string t) {
+    // Using two pointer technique
+    int i = 0;
+    int j = 0;
+
+    // bool IS_SUBSEQUENCE ;
+    // if(s.empty() && t.empty()) return true;
+
+    while(i < s.size() && j < t.size()){
+        cout << s[i] << " == " << t[j] << " ? " << endl;
+        cout << i << " " << j << endl;
+        if(s[i] == t[j]) i++;
+        j++;
+    }
+    if(i == s.size()) return true;
+    else return false;
+}
+/*
+ * LEET CODE: Remove nth node from the end 
+ */
+ListNode* removeNthFromEnd(ListNode* head, int n) {
+    ListNode* dummy = new ListNode(0, head);
+
+    ListNode* left = dummy;
+    ListNode* right=head;
+
+    // Shift the right pointer by n Spaces
+    for(int i = 0; i <n; i++){
+        right=right->next;
+    }
+
+    // Find the nth Node from the end
+    while(right != nullptr){
+        right=right->next;
+        left=left->next;
+    }
+
+    // Delete Node
+    left->next=left->next->next;
+
+    return dummy->next;
+}
+
+/*
+ * LEET CODE: Counting Bits
+ */
+// vector<int> countBits(int n) {
+//     vector<int> count = {};
+//     int ONES_COUNT=0;
+//     for(int BINARY_NUMBERS = 0; BINARY_NUMBERS<=n; BINARY_NUMBERS++){
+//         int qout = BINARY_NUMBERS;
+//         int rem = 0;
+//         while(qout > 0){
+//             rem = qout%2;
+//             // cout << "BINARY: " << BINARY_NUMBERS <<" REMAINING " << rem << endl;
+//             if(rem==1) ONES_COUNT++;
+//             qout=qout/2;
+//         }
+//         count.push_back(ONES_COUNT);
+//         ONES_COUNT = 0;
+//     }
+//     return count;
+// }
+vector<int> countBits(int n){
+    vector<int> ONES(n+1, 0);
+    int offset = 1;
+    for(int nBins = 1; nBins<=n; nBins++){
+        if(offset*2 == nBins){
+            offset = nBins;
+        }
+        ONES[nBins] = 1+ONES[nBins-offset];
+    }
+    return ONES;
+}
+
 
 /*
  * LEET CODE: Compare Version Numbers
@@ -765,5 +1510,11 @@ bool isPalindrome(int x) {
 void logIntArr(const vector<int> arr){
     for(unsigned int i = 0 ; i < arr.size() ; i++){
         cout << i << " : " << arr[i] << endl;
+    }
+}
+
+void logMap(map<int, int> m){
+    for(auto element: m){
+        cout << element.first << " : " << element.second << endl;
     }
 }
