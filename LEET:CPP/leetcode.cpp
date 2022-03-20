@@ -13,18 +13,10 @@
 #include <limits>
 #include <string.h>
 #include <bitset>
+#include <set>
+#include "leetdef.hpp"
+
 using namespace std;
-
-// Definition for singly-linked list by LEET CODE.
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
-
-
 
 vector<int> twoSum(vector<int> & nums, int target);
 int removeDuplicates(vector<int>& nums);
@@ -66,6 +58,12 @@ void moveZeroes(vector<int>& nums);
 vector<int> twoSum2(vector<int>& numbers, int target);
 void reverseString(vector<char>& s);
 string reverseWords(string s); 
+int scoreOfParentheses(string s);
+string removeDuplicateLetters(string s);
+bool match(vector<int> a, vector<int> b);
+int lengthOfLongestSubstring(string s) ;
+int minDominoRotations(vector<int>& tops, vector<int>& bottoms);
+TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2);
 
 void logIntArr(vector<int>);
 void logString(string s );
@@ -74,97 +72,233 @@ int getMax(vector<int> nums, int part);
 int getMin(vector<int> nums, int part); 
 
 
-/*
- * LEET CODE: Generate Parentheses
- */
-class GenParen{
-public:
-    vector<string> generateParenthesis(int n){
-        pSize = n;
-        backTrackParens("", 0, 0);
-        return res;
-
-    }
-
-    void backTrackParens(string s, int nClosed, int nOpen){
-        cout << s << endl;
-        // Base Case appen result
-        if(nClosed==nOpen && nOpen==pSize){
-            res.push_back(s);
-            return;
-        }
-
-        // Add an open Parentheses 
-        if(nOpen < pSize){
-            s.push_back('(');
-            backTrackParens(s, nClosed, nOpen+1);
-            s.pop_back();
-        }
-
-        // Closed Parentheses 
-        if(nClosed < nOpen){
-            s.push_back(')');
-            backTrackParens(s, nClosed+1, nOpen);
-            s.pop_back();
-        }
-    }
-
-    GenParen(): pSize(0), res({}){
-
-    }
-
-private:
-    int pSize;
-    vector<string> res;
-};
-
-class DeleteEarn{
-public:
-    int deleteAndEarn(vector<int>& nums){
-        inSize = nums.size();
-
-        // Sort 
-        sort(nums.begin(), nums.end());
-        return dp(0, nums);
-    }
-
-    int dp(int idx, vector<int> nums){
-        // BASE CASE
-        if(idx >= inSize) return 0;
-
-        // Memoization
-        if(points.find(idx) != points.end()) return points[idx];
-
-        // take the current point into earning
-        // calculate next idx, or leave
-        int point = nums[idx];
-        int nidx = idx + 1;
-        while(idx<inSize && nums[idx] == nums[nidx]){
-            point = point + nums[nidx];
-            nidx++;
-        }
-        while(nidx < inSize && nums[idx] == nums[nidx]-1){
-            nidx++;
-        }
-        
-
-        // Add max earn into memo
-        points.insert({idx, max(point + dp(nidx, nums), dp(idx+1, nums))});  
-        
-        return points[idx];
-
-    }
-private:
-    int inSize;
-    map<int, int> points;
-};
 /* Main Programm 
  * Usage: Unit Tests and Code Checks 
  */ 
 
 int main(int argc, const char** argv) {
-    cout << (INT32_MAX >> 1) << endl;
+    map<int, int> cmp;
+    cmp[1]++;
+    for(auto i: cmp){
+        cout<< i.first << i.second << endl;
+    }
+    cout << cmp[2] << endl;
 }
+
+// LEETCODE: Merge Two Trees -- ALGORITHM I
+TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2){
+    // Return if any of the nodes are null
+    if(root1 == nullptr) return root2;
+    if(root2 == nullptr) return root1;
+
+    root1->val += root2->val;
+
+    root1->left = mergeTrees(root1->left, root2->left);
+    root1->right = mergeTrees(root1->right, root2->right);
+
+    return root1;
+}
+
+
+// LEETCODE: Minimum Domino rotations
+int minDominoRotations(vector<int>& tops, vector<int>& bottoms){
+    // Select the First Domino, Since there must exit at least one 
+    // value in the first domino common in all dominos , if none then there 
+    // are no possible rotations available
+
+    vector<int> targets = {tops[0], bottoms[0]};
+
+    for(auto target : targets){
+        int topMissing = 0;
+        int bottomMissing = 0;
+        
+        for(int i = 0; i < tops.size(); i++){
+            // If neither the top or the bottom have the target then skip
+            if(tops[i] != target && bottoms[i] != target) break;
+
+            // Calculate the missing spots of the target
+            if(tops[i] != target) topMissing++;
+            if(bottoms[i] != target) bottomMissing++;
+
+            // Return the minimum missin spots for minimum rotations applicable
+            if(i == tops.size()-1) return min(topMissing, bottomMissing);
+        }
+    }
+
+    // If there exits no solution
+    return -1;
+}
+
+// LEET CODE: Permutation in string ALGORITHMS I
+bool checkInclusion(string s1, string s2){
+
+    // Case s1 > s2
+    if(s1.size() > s2.size()) return false; 
+    
+    //  create an array of frequencies of both strings for 
+    // first s1 size chars 
+    vector<int> charCountS1(26, 0);
+    vector<int> charCountS2(26, 0);
+
+    for(int i = 0; i < s1.size(); i++){
+        charCountS1[s1[i] - 'a']++;
+        charCountS2[s2[i] - 'a']++; // Contains count of first (s1.size()) elements
+    }
+
+    // Sliding window technique ... move the window and calculate current window freq.
+    for(int i = 0 ; i < s2.size() - s1.size(); i++){
+        // Return if already matches 
+        if(match(charCountS1, charCountS2)) return true;
+
+        // Move window to the right by adding and removing characters from the wnidow
+        charCountS2[s2[i + s1.size()] - 'a'] ++; // Add next char to window
+        charCountS2[s2[i] - 'a'] --; // remove first char from window   
+    }
+
+    // may still have not returned so last check
+    return match(charCountS1, charCountS2);
+}
+
+
+// bool checkInclusion(string s1, string s2) {
+//     // Case s1 > s2
+//     if(s1.size() > s2.size()) return false; 
+    
+//     //  create an array of frequencies of the first String
+//     vector<int> charCountS1(26, 0);
+//     for(char a: s1){
+//         charCountS1[int(a) - int('a')]++;
+//     }
+
+//     // For each window os s1 size in s2 find and calculate chars frequencies 
+//     // and compare these counts to s1 counts return true if identical
+//     for(int i = 0; i <= (s2.size() - s1.size()) ; i++){
+//         // create new windows array
+//         vector<int> charCountS2(26, 0);
+        
+//         // count frequencies  
+//         for(int j = 0 ; j < s1.size(); j++){
+//             charCountS2[ s2[i + j] - 'a']++;
+//         }
+//         // True if matches 
+//         if(match(charCountS1, charCountS2)) return true;
+//     }
+//     return false;
+// }
+
+
+bool match(vector<int> a, vector<int> b){
+    for(int i = 0 ; i < a.size(); i++){
+        if(a[i] != b[i]) return false ; 
+    }
+    return true;
+}
+
+// LEET CODE: Longest substring without repetition ALGORITHMS I
+int lengthOfLongestSubstring(string s) {
+    int res = 0;
+    int i=0;
+    set<char> found;
+    
+    for(int j=0 ; j < s.size(); j++){
+        //  remove Repeating chars from substring and count current lenght
+        while(found.find(s[j]) != found.end()){
+            found.erase(s[i]);
+            i++;
+        }
+        found.insert(s[j]);
+        res = max(res, j-i+1);
+    }
+    return res;
+}
+
+
+// LEET CODE: Remove duplicate Letters --- Daily
+string removeDuplicateLetters(string s) {
+    map<char, int> letterToIdx;
+    
+    // Add the Latest Index of every character in S
+    for(int i = 0; i<s.size(); i++){
+        letterToIdx[s[i]] = i;
+    }
+
+    // Structures which will monitor the string
+    string sequence = "";
+    set<char> seen;
+
+    // Loop s and always add the smallest ordered character if it is already 
+    // present latter in the string
+    for(int i = 0; i<s.size(); i++){
+        // If already seen coninue looping
+        if(seen.find(s[i]) != seen.end()) continue;
+
+        // while current character is less than top of stack and stack top is 
+        // present later in the string --- remove stack
+        while(!sequence.empty() && sequence.back() > s[i] && letterToIdx[sequence.back()] > i){
+            seen.erase(sequence.back());
+            sequence.pop_back();
+        }
+
+        // Otherwise add current character
+        seen.insert(s[i]);
+        sequence.push_back(s[i]);
+    }
+
+    // Return Stack as a String
+    return sequence;
+}
+
+//  LEET CODE : MIDDLE OF Linked list, ALGORITHMS I
+ListNode* middleNode(ListNode* head){
+    // Two pointer solution with fast and slow runners
+    ListNode* slow = head;
+    ListNode* fast = head;
+
+    while(fast->next->next!=nullptr){
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+
+    return slow;
+}   
+
+/*
+ * LEET CODE: Parentheses Score
+ */
+int scoreOfParentheses(string s){
+    stack<char> sequence;
+    int score = 0;
+    int balance = 0;
+    char lstP ;
+
+    for(int i = 0; i < s.size(); i++){
+        if(s[i] == '('){
+            balance++;
+        } else {
+            balance--;
+            if(s[i-1] == '(') score+= 1 << balance;
+        }
+    }
+    return score;
+}
+// int scoreOfParentheses(string s){
+//     stack<char> sequence;
+//     int score = 0;
+
+//     // Loop each char and record current depth in the stack 
+//     for(char p: s){
+//         if(p == '('){
+//             sequence.push(score);
+//             score = 0;
+//         } else {
+//             int current_depth = sequence.top();
+//             sequence.pop();
+//             score = current_depth + max(score*2, 1);
+//         }
+//     }
+//     return score;
+// }
+
 
 /*
  * LEET CODE: REVERSE WORDS IN STRING
