@@ -20,10 +20,6 @@ public:
                 int mid = i + (j - i) / 2;  
                 
                 
-                cout << mid << endl;
-                cout << i << endl;
-                cout << j << endl;
-                
                 if(target < row[mid]) j = mid-1;
 
                 else if(target > row[mid]) i = mid+1;
