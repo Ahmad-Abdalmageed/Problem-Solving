@@ -10,25 +10,28 @@
  */
 class Solution {
 public:
-    ListNode* deleteDuplicates(ListNode* head) {
+    // LEETCODE: 82. Remove Duplicates from Sorted List II --- ALGORITHM II
+    ListNode* deleteDuplicates(ListNode* head){
+        // Create a Dummy Node 
         ListNode* dummy = new ListNode(0, head);
-        ListNode* cur_node= head;
-        ListNode* prv_node= dummy;
-        
-        while(cur_node!=nullptr){
-            
-            if(cur_node->next!=nullptr && (cur_node->val == cur_node->next->val)){
-                while(cur_node->next!=nullptr && (cur_node->val == cur_node->next->val)){
-                    cur_node=cur_node->next;
-                }
-                prv_node->next=cur_node->next;
+        // initiate Two Pointers 
+        ListNode* left = dummy;
 
-            } else{
-                prv_node=prv_node->next;
+        while(head != nullptr){
+            
+            if(head->next !=nullptr && head->val == head->next->val){
+                // Move Both Pointers untill duplicate Found
+                while(head->next != nullptr && head->next->val == head->val){
+                    head = head->next;
+                }
+                left->next = head->next;
+                
+            } else {
+                left = left->next;
             }
-            cur_node=cur_node->next;
+
+            head = head->next;
         }
         return dummy->next;
-        
     }
 };
