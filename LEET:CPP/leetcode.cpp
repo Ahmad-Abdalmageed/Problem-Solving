@@ -88,6 +88,13 @@ ListNode *deleteDuplicates(ListNode *head);
 bool backspaceCompare(string s, string t);
 vector<vector<int>> intervalIntersection(vector<vector<int>> &firstList,
                                          vector<vector<int>> &secondList);
+vector<int> sortArrayByParity(vector<int> &nums);
+int findUnsortedSubarray(vector<int> &nums);
+int maxOperations(vector<int> &nums, int k);
+int numSubarrayProductLessThanK(vector<int> &nums, int k);
+int minSubArrayLen(int target, vector<int> &nums);
+Node *connect(Node *root);
+string removeDuplicates(string s, int k);
 
 void logIntArr(vector<int>);
 void logString(string s);
@@ -106,6 +113,199 @@ int main(int argc, const char **argv) {
   std::cout << s.size();
   return 0;
 }
+// LEETCODE: Shortest Path in Binary Matrix
+int shortestPathBinaryMatrix(std::vector<std::vector<int>> &grid) {
+  // Set Up Directions 
+  int rGridSize = grid.size();
+  int cGridSize = grid[0].size();
+  std::vector<std::pair<int, int>> dirs = {{-1, -1}, {0, -1}, {-1, 0}, {1, 1},
+                                        {1, 0},   {0, 1},  {1, -1}, {-1, 1}};
+
+  // Base Case where no path is available to the target
+  if(grid[0][0] || grid[rGridSize-1][cGridSize-1]) return -1;
+  
+  // Take the First Step
+  grid[0][0] = 1;
+  std::queue<std::vector<int>> pathSearchQueue;
+  pathSearchQueue.push({0, 0, 1});
+
+  // Find All Paths
+  while(!pathSearchQueue.empty()){
+    // Extract Current Node
+    int r = pathSearchQueue.front()[0];
+    int c = pathSearchQueue.front()[1];
+    int dist = pathSearchQueue.front()[2];
+    pathSearchQueue.pop();
+
+    // Return when reaches the Target
+    if(r == rGridSize-1 && c == cGridSize-1) return dist;
+
+    // Search in Every Direction
+    for(auto const &[dr, dc]: dirs){
+      int rNew = r + dr;
+      int cNew = c + dc;
+
+      if(rNew >= 0 && rNew < rGridSize && cNew >=0 && cNew < cGridSize && !grid[rNew][cNew]){
+        pathSearchQueue.push({rNew, cNew, dist+1});
+        grid[rNew][cNew] = 1;
+      }
+    }
+  }
+  return -1;
+}
+
+// LEETCODE: Remove All Adjancent Duplicates in String II -- Daily
+string removeDuplicates(string s, int k) {
+  // Using Stack DS
+  std::stack<std::pair<char, int>> charCountStack;
+
+  // For Every Character in the String, add it to stack and
+  // Increment its count
+  for (auto c : s) {
+    if (!charCountStack.empty() && charCountStack.top().first == c)
+      charCountStack.top().second += 1;
+    else
+      charCountStack.push({c, 1});
+
+    if (charCountStack.top().second == k)
+      charCountStack.pop();
+  }
+
+  std::string res = "";
+  while (!charCountStack.empty()) {
+    char c = charCountStack.top().first;
+    int count = charCountStack.top().second;
+    charCountStack.pop();
+    res = std::string(count, c) + res;
+  }
+  return res;
+}
+
+// LEETCODE: 117. Populating Next Right Pointers in Each Node II
+Node *connect(Node *root) {
+  if (root == nullptr)
+    return root;
+  Node *head = root;
+
+  while (head != nullptr) {
+    Node *dummy = new Node(0);
+    Node *temp = dummy;
+    // Level Traversal
+    while (head != nullptr) {
+      if (head->left != nullptr) {
+        temp->next = head->left;
+        temp = temp->next;
+      }
+      if (head->right != nullptr) {
+        temp->next = head->right;
+        temp = temp->next;
+      }
+      head = head->next;
+    }
+    head = dummy->next;
+  }
+  return root;
+}
+
+// LEETCODE: Minium Size Subarray
+int minSubArrayLen(int target, vector<int> &nums) {
+  // Increasing Sliding Window Size
+  int left = 0;
+  int minSubArrayLen = INT_MAX;
+  int sum = 0;
+  for (int rght = 0; rght < nums.size(); rght++) {
+    sum += nums[rght];
+    while (sum >= target) {
+      minSubArrayLen = std::min(minSubArrayLen, rght - left + 1);
+      sum -= nums[left];
+      left += 1;
+    }
+  }
+  return minSubArrayLen == INT_MAX ? 0 : minSubArrayLen;
+}
+
+// LEETCODE: Subarray Product Less than K
+int numSubarrayProductLessThanK(vector<int> &nums, int k) {
+  if (k <= 1)
+    return 0;
+
+  // Increasing Sliding Window
+  int subArrayCount = 0;
+  int left = 0, prod = 1;
+  for (int rght = 0; rght < nums.size(); rght++) {
+    prod *= nums[rght];
+    while (prod >= k) {
+      prod /= nums[left];
+      left += 1;
+    }
+    subArrayCount += rght - left + 1;
+  }
+  return subArrayCount;
+}
+
+// LEETCODE: 1679. Max Number of K-Sum Pairs
+int maxOperations(vector<int> &nums, int k) {
+  // use hashmap to count the frequencies of each number
+  std::map<int, int> numCounts;
+  for (auto num : nums) {
+    numCounts[num]++;
+  }
+
+  // Loop the Counts and add to the result
+  int res = 0;
+  for (auto &numCount : numCounts) {
+    if (numCount.first * 2 == k) {
+      res += std::floor(numCount.second / 2);
+      numCount.second -= (numCount.second / 2) * 2;
+    } else {
+      int pairCount = std::min(numCount.second, numCounts[k - numCount.first]);
+      res += pairCount;
+      numCount.second -= pairCount;
+      numCounts[k - numCount.first] -= pairCount;
+    }
+  }
+  return res;
+}
+
+// LEETCODE:
+int findUnsortedSubarray(vector<int> &nums) {
+  // Copy Nums Array into a Sorted Copy
+  std::vector<int> numSorted(nums.begin(), nums.end());
+  std::sort(numSorted.begin(), numSorted.end());
+
+  // Count Subarray Size
+  int subArrayCount = 0;
+  int left = nums.size();
+  int rght = 0;
+  for (int ptr = 0; ptr < nums.size(); ptr++) {
+    if (nums[ptr] != numSorted[ptr]) {
+      left = std::min(left, ptr);
+      rght = std::max(rght, ptr);
+    }
+  }
+
+  return (rght - left >= 0) ? rght - left + 1 : 0;
+}
+
+// LEETCODE: 905. Sort Array By Parity -- DAILY
+vector<int> sortArrayByParity(vector<int> &nums) {
+  // Two Pointer Approach one pass
+  int i = 0;
+  int j = 0;
+
+  while (j < nums.size()) {
+    // Find even Numbers and bring them forward
+    if (nums[j] % 2 == 0) {
+      std::swap(nums[i], nums[j]);
+      i++;
+    }
+
+    // Move
+    j++;
+  }
+  return nums;
+}
+
 // LEETCODE : 986. Interval List Intersections --- ALGORITHMS II
 vector<vector<int>> intervalIntersection(vector<vector<int>> &firstList,
                                          vector<vector<int>> &secondList) {

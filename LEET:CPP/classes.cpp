@@ -336,3 +336,156 @@ int BinarySearchDouble::binarySearch(std::vector<int> nums, int target,
 
   return idx;
 }
+
+std::vector<int> StringAngrams::findAnagrams(std::string s, std::string p) {
+  // Base Case Check
+  if (p.size() > s.size())
+    return {};
+
+  // Initialize both Hashmaps
+  std::map<char, int> sCountMap;
+  std::map<char, int> pCountMap;
+
+  std::vector<int> res;
+  // Count the Frequencies in the First String and add the
+  // Frequencies of the First Window in the second string
+  int ctr = 0;
+  for (auto c : p) {
+    pCountMap[c]++;
+    sCountMap[s[ctr]]++;
+    ctr++;
+  }
+
+  // Add the First
+  if (compMaps(sCountMap, pCountMap)) {
+    res.push_back(0);
+  }
+
+  int i = 0;
+  for (int j = p.size(); j < s.size(); j++) {
+    sCountMap[s[j]]++;
+    sCountMap[s[i]]--;
+
+    // Remove the Character if already Reached 0 Counts
+    if (sCountMap[s[i]] == 0)
+      sCountMap.erase(s[i]);
+
+    // Increment the left ptr to the next position
+    i++;
+
+    if (compMaps(sCountMap, pCountMap))
+      res.push_back(i);
+  }
+  return res;
+}
+
+template <typename Map>
+bool StringAngrams::compMaps(Map const &leftMap, Map const &rghtMap) {
+  return leftMap.size() == rghtMap.size() &&
+         std::equal(leftMap.begin(), leftMap.end(), rghtMap.begin());
+}
+
+int CountIslands::numIslands(std::vector<std::vector<char>> &grid) {
+  if (grid.empty())
+    return 0;
+
+  gridRows = grid.size();
+  gridCols = grid[0].size();
+  int islandsCount = 0;
+
+  gridIsland = grid;
+  seen = std::vector<std::vector<bool>>(gridRows, std::vector<bool>(gridCols));
+
+  for (int r = 0; r < gridRows; r++) {
+    for (int c = 0; c < gridCols; c++) {
+      if (grid[r][c] == '1' && !seen[r][c]) {
+        bfs(r, c);
+        islandsCount++;
+      }
+    }
+  }
+  return islandsCount;
+}
+void CountIslands::bfs(int row, int col) {
+  std::queue<std::pair<int, int>> neighbors;
+  std::vector<std::vector<int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+  seen[row][col] = 1;
+  neighbors.push({row, col});
+
+  while (!neighbors.empty()) {
+    int r = neighbors.front().first;
+    int c = neighbors.front().second;
+    neighbors.pop();
+    for (auto direction : directions) {
+      int dr = r + direction[0];
+      int dc = c + direction[1];
+
+      if (dr >= 0 && dr < gridRows && dc >= 0 && dc < gridCols &&
+          gridIsland[dr][dc] == '1' && !seen[dr][dc]) {
+        neighbors.push({dr, dc});
+        seen[dr][dc] = 1;
+      }
+    }
+  }
+}
+
+int NumberOfIslands::findCircleNum(std::vector<std::vector<int>> &isConnected) {
+  visited = std::vector<bool>(isConnected.size());
+  int islandsCount = 0;
+  for (int city = 0; city < isConnected.size(); city++) {
+    if (!visited[city]) {
+      bfs(isConnected, city);
+      islandsCount++;
+    }
+  }
+  return islandsCount;
+}
+void NumberOfIslands::bfs(std::vector<std::vector<int>> &isConnected, int cur) {
+  for (int nextCity = 0; nextCity < isConnected.size(); nextCity++) {
+    if (isConnected[cur][nextCity] && !visited[nextCity]) {
+      visited[nextCity] = 1;
+      bfs(isConnected, nextCity);
+    }
+  }
+}
+
+bool IsSubTree::isSubtree(TreeNode *root, TreeNode *subRoot) {
+  if (subRoot == nullptr)
+    return true;
+  if (root == nullptr)
+    return false;
+
+  if (isSameTree(root, subRoot))
+    return true;
+  return (isSubtree(root->left, subRoot) || isSubtree(root->right, subRoot));
+}
+
+bool IsSubTree::isSameTree(TreeNode *root, TreeNode *subRoot) {
+  if (root == nullptr && subRoot == nullptr)
+    return true;
+  if (root != nullptr && subRoot != nullptr && root->val == subRoot->val)
+    return (isSameTree(root->left, subRoot->left) &&
+            isSameTree(root->right, subRoot->right));
+  return false;
+}
+
+MyStack::MyStack() {}
+void MyStack::push(int x) {
+  // Add Input to Object Queue
+  this->qStack.push(x);
+  int ctr = this->qStack.size();
+  while (ctr > 1) {
+    int temp = this->qStack.front();
+    this->qStack.pop();
+    this->qStack.push(temp);
+    ctr--;
+  }
+}
+
+int MyStack::pop() {
+  int temp = this->qStack.front();
+  this->qStack.pop();
+  return temp;
+}
+int MyStack::top() { return this->qStack.front(); }
+bool MyStack::empty() { return this->qStack.empty(); }

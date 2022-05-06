@@ -213,4 +213,53 @@ public:
 private:
   int binarySearch(std::vector<int> nums, int target, bool leftBias);
 };
+
+class StringAngrams {
+public:
+  std::vector<int> findAnagrams(std::string s, std::string p);
+
+private:
+  template <typename Map> bool compMaps(Map const &leftMap, Map const &rghtMap);
+};
+
+class CountIslands {
+public:
+  int numIslands(std::vector<std::vector<char>> &grid);
+
+private:
+  void bfs(int row, int col);
+  int gridRows;
+  int gridCols;
+  std::vector<std::vector<bool>> seen;
+  std::vector<std::vector<char>> gridIsland;
+};
+
+class NumberOfIslands {
+public:
+  int findCircleNum(std::vector<std::vector<int>> &isConnected);
+
+private:
+  void bfs(std::vector<std::vector<int>> &isConnected, int cur);
+  std::vector<bool> visited;
+};
+
+class IsSubTree {
+public:
+  bool isSubtree(TreeNode *root, TreeNode *subRoot);
+  bool isSameTree(TreeNode *root, TreeNode *subRoot);
+};
+
+class MyStack {
+public:
+  MyStack();
+  void push(int x);
+  int pop();
+  int top();
+  bool empty();
+
+private:
+  std::queue<int> qStack;
+  int qStackTop;
+};
+
 #endif // DEBUG
