@@ -1,6 +1,6 @@
 # Leet Code Problem Solutions
 
-Here I include my LeetCode Problem Solutions, The Repo include solutions for Daily Challenges and
+Here I include my LeetCode Solutions, The Repo include solutions for Daily Challenges and
 LeetCode Curated Lists.
 
 
