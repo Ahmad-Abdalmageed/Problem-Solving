@@ -2,17 +2,19 @@ class Solution {
 public:
 int lengthOfLongestSubstring(string s) {
     int res = 0;
-    int i=0;
-    set<char> found;
+    int i = 0, j = 0 ;
+    std::unordered_set<char> sequence;
     
-    for(int j=0 ; j < s.size(); j++){
-        //  remove Repeating chars from substring and count current lenght
-        while(found.find(s[j]) != found.end()){
-            found.erase(s[i]);
+    while(j < s.size()){
+        // Unique Characters go inside the Set
+        if(sequence.find(s[j]) == sequence.end()){
+            sequence.insert(s[j]);
+            res = std::max(res, j - i + 1);
+            j++;
+        } else {
+            sequence.erase(s[i]);
             i++;
         }
-        found.insert(s[j]);
-        res = max(res, j-i+1);
     }
     return res;
 }
