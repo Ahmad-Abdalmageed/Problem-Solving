@@ -16,51 +16,32 @@ public:
 
 class Solution {
 public:
-    Node* copyRandomList(Node* head) {
-        // case no head
-        if(head==nullptr) return nullptr;
-        Node* list1 = head;
-        Node* list2 = nullptr;
-         
-        // update current list with copies of each node
-        while(list1 != nullptr){
-            // create new node with list1 value and next node
-            list2= new Node(list1->val);
-            list2->next=list1->next;
-            
-            // update pointers 
-            list1->next=list2;
-            list1=list1->next->next;
+    // LEETCODE 138. Copy List with Random Pointer
+    // ####### Using Hash Map #######
+    Node *copyRandomList(Node *head)
+    {
+      std::unordered_map<Node *, Node *> originalToCopyMap;
+      Node *ptrHead = head;
 
+      while (ptrHead != nullptr)
+      {
+        originalToCopyMap[ptrHead] = new Node(ptrHead->val);
+        ptrHead = ptrHead->next;
+      }
 
-        }
-        // update rand pointers with copy nodes
-        list1=head;
-        
+      ptrHead = head;
+      // Connect the Nodes
+      while (ptrHead != nullptr)
+      {
+        // Connect Next Nodes
+        originalToCopyMap[ptrHead]->next = originalToCopyMap[ptrHead->next];
 
-        while(list1!=nullptr){
-            if(list1->random!=nullptr){
+        // Connect Random Nodes
+        originalToCopyMap[ptrHead]->random = originalToCopyMap[ptrHead->random];
 
-
-                list1->next->random= list1->random->next;
-            }
-
-            list1=list1->next->next;
-        }
-        
-        // extract the new list from old list
-        list1 = head;
-        Node* list2_head= list1->next;
-        
-        while(list1 != nullptr){
-            list2=list1->next;
-            list1->next = list2->next;
-            if(list2->next!=nullptr){
-                list2->next = list2->next->next;
-            }
-            list1=list1->next;
-
-        }
-        return list2_head;
+        ptrHead = ptrHead->next;
+      }
+      return originalToCopyMap[head];
     }
+
 };
