@@ -1,18 +1,25 @@
 class Solution {
 public:
-    int majorityElement(vector<int>& nums) {
-        int res;
-        while(true){
-            int count = 0;
-            int idx = rand() % nums.size();
-            for(auto num: nums){
-                if(num == nums[idx]) count++;
-            }
-            if(count > nums.size()/2){
-                return nums[idx];
-            }
-
+    int majorityElement(vector<int>& nums)
+    {
+        std::unordered_map<int, int> countMap;
+        
+        for(auto const &num: nums)
+        {
+            countMap[num]++;
         }
+        
+        int res = -1;
+        for(auto const &count: countMap)
+        {
+            if(count.second > nums.size() / 2)
+            {
+                res = count.first;
+                break;
+            } 
+        }
+        return res;
+
     }
 
 };
