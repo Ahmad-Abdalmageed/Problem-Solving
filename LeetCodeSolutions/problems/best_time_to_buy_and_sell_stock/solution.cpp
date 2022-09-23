@@ -1,17 +1,17 @@
 class Solution {
 public:
-    int maxProfit(vector<int>& prices) {
-        // Using Sliding Window and Two Pointers 
-        int maxProfit = 0;
-        int minValue = prices[0]; // Use the Most minimum value as theBuy Value 
+    // Brute == O(n^2)
+    // Two Pointers/Sliding Window --- o(n)
+    int maxProfit(vector<int>& prices) 
+    {
+        int profit = 0;
+        int buy = prices[0];
         
-        for(auto const & price: prices){
-            minValue = std::min(price, minValue);
-            maxProfit = std::max(maxProfit, price - minValue); // Calculate the Profit
+        for(auto const &price: prices)
+        {
+            buy = std::min(buy, price);
+            profit = std::max(profit, price - buy);
         }
-        
-        return maxProfit;
-        
-        
+        return profit;
     }
 };
