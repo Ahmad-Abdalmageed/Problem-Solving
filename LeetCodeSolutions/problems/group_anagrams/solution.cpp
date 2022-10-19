@@ -1,5 +1,22 @@
 class Solution {
 public:
+  string getKey(string str)
+  {
+      vector<int> counts(26);
+      for(auto const character: str)
+      {
+          counts[character - 'a']++;
+      }
+      
+      string key = "";
+      for(auto const count: counts)
+      {
+          key.append(to_string(count + 'a'));
+      }
+      return key;
+  }
+    
+    
   // LEETCODE: 49 .. Group Anagrams
   vector<vector<string>> groupAnagrams(vector<string> &strs)
   {
@@ -10,8 +27,8 @@ public:
     for (auto const &str : strs)
     {
       std::string copyStr = str;
-      std::sort(copyStr.begin(), copyStr.end());
-      mp[copyStr].push_back(str);
+      string key = getKey(str);
+      mp[key].push_back(str);
     }
     
     // Reserve places for created keys
