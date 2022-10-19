@@ -1,29 +1,24 @@
 class Solution {
 public:
-  bool isAnagram(string s, string t){
-    //  Base Case ... Strings sizes dont match
-    if(s.size() != t.size()){
-      return false;
+    bool isAnagram(string s, string t) {
+        if(s.size() != t.size()) return false;
+        
+        
+        std::sort(s.begin(), s.end()); // nlogn
+        std::sort(t.begin(), t.end()); // nlogn
+        
+        int i = 0;
+        int j = 0;
+        
+        // o(m) m = s.size()
+        while(i <= s.size() && j <= t.size())
+        {
+            if(s[i] != t[j]) return false;
+            i++;
+            j++;
+            
+        }
+        return true;
+        
     }
-
-    // 26 Alphabet Characters
-    std::vector<int> alphabet(26);
-
-    // Count chars in first String
-    for(auto sChar: s){
-      alphabet[sChar - 'a']++;
-    }
-
-    // Remove Equal Counts .... If count is less  than 0 then not identical 
-    // Anagrams
-    for(auto tChar : t){
-      alphabet[tChar - 'a']--;
-      if(alphabet[tChar - 'a'] < 0){
-        return false;
-      }
-    }
-
-    return true;
-  }
-
 };
